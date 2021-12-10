@@ -18,7 +18,7 @@ class Todo(db.Model):
 
 
 @app.route("/", methods=['GET', 'POST'])
-def hello_world():
+def home():
     if request.method == "POST":
         title = request.form['title']
         desc = request.form['desc']
@@ -34,10 +34,19 @@ def about():
     return "<h1>This is my first flask web application.  Basically, this is a To Do Application. This is made by me. </h1>"
 
 
-@app.route("/update")
-def update():
-    allTodo = Todo.query.all()
-    return "<p>This is my datbase</p>"
+@app.route("/update/<int:sno>", methods=['GET', 'POST'])
+def update(sno):
+    if request.method == "POST":
+        title = request.form['title']
+        desc = request.form['desc']
+        todo = Todo.query.filter_by(sno=sno).first()
+        todo.title=title
+        todo.desc=desc
+        db.session.add(todo)
+        db.session.commit()
+        return redirect("/")
+    todo = Todo.query.filter_by(sno=sno).first()
+    return render_template('update.html', todo=todo)
 
 
 @app.route("/delete/<int:sno>")
@@ -46,11 +55,6 @@ def delete(sno):
     db.session.delete(todo)
     db.session.commit()
     return redirect("/")
-
-
-@app.route("/about")
-def hello_Rony():
-    return "<p>This Md. Rony</p>"
 
 
 if __name__ == "__main__":
